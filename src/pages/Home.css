@@ -1,0 +1,93 @@
+.home-page {
+  min-height: 100vh;
+  background-color: rgb(225, 243, 248);
+}
+
+.home-hero {
+  display: flex;
+  min-height: 70vh;
+  padding: 60px 8%;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+.home-hero h1 {
+  margin: 0 0 15px;
+  color: #173b63;
+  font-size: 56px;
+}
+
+.home-hero > p {
+  margin: 0 0 35px;
+  color: #52677d;
+  font-size: 20px;
+}
+
+.city-search {
+  display: flex;
+  width: 100%;
+  max-width: 650px;
+  flex-direction: column;
+  gap: 12px;
+  text-align: left;
+}
+
+.city-search label {
+  color: #173b63;
+  font-size: 17px;
+  font-weight: bold;
+}
+
+.search-controls {
+  display: flex;
+  gap: 12px;
+}
+
+.search-controls input {
+  flex: 1;
+  min-width: 0;
+  padding: 14px 16px;
+  background-color: white;
+  border: 1px solid #b8c9da;
+  border-radius: 8px;
+  font-size: 16px;
+}
+
+.search-controls input:focus {
+  border-color: #2878c7;
+  outline: 2px solid rgba(40, 120, 199, 0.2);
+}
+
+.search-controls button {
+  padding: 14px 25px;
+  color: white;
+  background-color: #2878c7;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.search-controls button:hover {
+  background-color: #1e609f;
+}
+
+@media (max-width: 550px) {
+  .home-hero {
+    padding: 40px 5%;
+  }
+
+  .home-hero h1 {
+    font-size: 42px;
+  }
+
+  .search-controls {
+    flex-direction: column;
+  }
+
+  .search-controls button {
+    width: 100%;
+  }
+}
