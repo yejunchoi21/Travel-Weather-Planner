@@ -1,0 +1,63 @@
+/* ---------- TRIP SUMMARY ---------- */
+
+.trip-summary {
+  width: 100%;
+  padding: 28px 32px;
+  color: #fff7e9;
+  background-color: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 247, 233, 0.16);
+  border-radius: 20px;
+}
+
+.trip-summary-label {
+  margin: 0 0 8px;
+  color: #eab36d;
+  font-size: 12px;
+  font-weight: 750;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.trip-summary h2 {
+  margin: 0 0 18px;
+  font-size: 26px;
+}
+
+.trip-summary-dates {
+  display: flex;
+  margin: 0 0 16px;
+  align-items: center;
+  gap: 12px;
+  color: #d8dfdb;
+  font-size: 15px;
+}
+
+.trip-summary-dates span {
+  color: #eab36d;
+  font-weight: 700;
+}
+
+.trip-summary-length {
+  display: inline-block;
+  margin: 0;
+  padding: 8px 14px;
+  color: #26352f;
+  background-color: #eab36d;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 750;
+}
+
+/* ---------- PHONE SCREENS ---------- */
+
+@media (max-width: 600px) {
+  .trip-summary {
+    padding: 24px 20px;
+  }
+
+  .trip-summary-dates {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 5px;
+  }
+}

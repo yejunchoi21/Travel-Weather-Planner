@@ -1,0 +1,152 @@
+/* ---------- SEARCH FORM ---------- */
+
+.city-search {
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.city-search > label {
+  color: #fff7e9;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+}
+
+/* City input and search button */
+.search-controls {
+  display: flex;
+  gap: 8px;
+  padding: 7px;
+  background-color: #fff7e9;
+  border-radius: 18px;
+  box-shadow: 0 15px 35px rgba(15, 24, 20, 0.28);
+}
+
+.search-controls input {
+  flex: 1;
+  min-width: 0;
+  padding: 16px 17px;
+  color: #26352f;
+  background-color: transparent;
+  border: none;
+  border-radius: 11px;
+  outline: none;
+  font-size: 16px;
+}
+
+.search-controls input::placeholder {
+  color: #8a948f;
+}
+
+.search-controls input:focus {
+  outline: 2px solid #eab36d;
+}
+
+/* Search button */
+.search-controls button {
+  padding: 15px 26px;
+  color: #26352f;
+  background-color: #eab36d;
+  border: none;
+  border-radius: 13px;
+  font-weight: 750;
+  cursor: pointer;
+  transition:
+    background-color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.search-controls button:hover {
+  background-color: #f3c486;
+  transform: translateY(-1px);
+}
+
+.search-controls button:active {
+  transform: translateY(0);
+}
+
+.search-controls button:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.search-controls button:disabled:hover {
+  background-color: #eab36d;
+  transform: none;
+}
+
+/* ---------- TRIP DATES ---------- */
+
+.trip-dates {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+}
+
+.date-field {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.date-field label {
+  color: #fff7e9;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.7px;
+  text-transform: uppercase;
+}
+
+.date-field input {
+  width: 100%;
+  padding: 14px 15px;
+  color: #26352f;
+  background-color: #fff7e9;
+  border: 2px solid transparent;
+  border-radius: 12px;
+  outline: none;
+  font-size: 15px;
+  color-scheme: light;
+}
+
+.date-field input:focus {
+  border-color: #eab36d;
+}
+
+/* ---------- ERROR MESSAGE ---------- */
+
+.error-message {
+  width: 100%;
+  margin: 0;
+  padding: 14px 18px;
+  color: #7b2f25;
+  background-color: #f8d9cf;
+  border: 1px solid #e5a895;
+  border-radius: 12px;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+/* ---------- PHONE SCREENS ---------- */
+
+@media (max-width: 600px) {
+  .city-search {
+    gap: 16px;
+  }
+
+  .search-controls {
+    flex-direction: column;
+  }
+
+  .search-controls button {
+    width: 100%;
+  }
+
+  .trip-dates {
+    grid-template-columns: 1fr;
+  }
+}

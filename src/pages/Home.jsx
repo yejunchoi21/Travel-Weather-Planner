@@ -1,105 +1,84 @@
 import { useState } from "react";
+import SearchForm from "../components/SearchForm";
+import CurrentWeather from "../components/CurrentWeather";
+import TripSummary from "../components/TripSummary";
+import Forecast from "../components/Forecast";
 import "./Home.css";
 
-/*
-  Converts Open-Meteo weather codes
-  into readable descriptions.
-*/
-function getWeatherDescription(code) {
-  if (code === 0) return "Clear sky";
-  if (code === 1) return "Mainly clear";
-  if (code === 2) return "Partly cloudy";
-  if (code === 3) return "Overcast";
-
-  if (code === 45 || code === 48) {
-    return "Foggy";
-  }
-
-  if (code >= 51 && code <= 57) {
-    return "Drizzle";
-  }
-
-  if (code >= 61 && code <= 67) {
-    return "Rain";
-  }
-
-  if (code >= 71 && code <= 77) {
-    return "Snow";
-  }
-
-  if (code >= 80 && code <= 82) {
-    return "Rain showers";
-  }
-
-  if (code >= 85 && code <= 86) {
-    return "Snow showers";
-  }
-
-  if (code >= 95 && code <= 99) {
-    return "Thunderstorm";
-  }
-
-  return "Unknown";
-}
-
 function Home() {
-  // Saves what the user types
+  // City typed into the search box
   const [city, setCity] = useState("");
 
-  // Saves information about the city
+  // Selected trip dates
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+
+  // Information returned by the APIs
   const [location, setLocation] = useState(null);
-
-  // Saves the current weather
   const [weather, setWeather] = useState(null);
-
-  // Saves the seven-day forecast
   const [forecast, setForecast] = useState(null);
 
-  // Tracks whether the search is loading
+  // Loading and error states
   const [isLoading, setIsLoading] = useState(false);
-
-  // Saves an error message
   const [error, setError] = useState("");
 
-  // Runs when the user submits the search form
+  // Runs when the search form is submitted
   async function handleSearch(event) {
-    // Prevents the page from refreshing
     event.preventDefault();
 
-    // Removes an old error message
+    // Removes an old error
     setError("");
 
-    // Stops the search when the input is empty
+    // Checks that a city was entered
     if (city.trim() === "") {
       setError("Please enter a city.");
       return;
     }
 
-    // Changes the button to “Searching...”
+    // Both trip dates must be selected together
+    if (
+      (startDate && !endDate) ||
+      (!startDate && endDate)
+    ) {
+      setError(
+        "Please select both an arrival and departure date."
+      );
+      return;
+    }
+
+    // Departure cannot be before arrival
+    if (
+      startDate &&
+      endDate &&
+      endDate < startDate
+    ) {
+      setError(
+        "Departure date cannot be before arrival date."
+      );
+      return;
+    }
+
+    // Starts the loading state
     setIsLoading(true);
 
-    /*
-      Searches for the city and returns
-      its latitude and longitude.
-    */
+    // API address used to find the city
     const locationUrl =
       `https://geocoding-api.open-meteo.com/v1/search` +
       `?name=${encodeURIComponent(city)}` +
       `&count=1&language=en&format=json`;
 
     try {
-      // Sends the city name to the location API
+      // First request: find the city
       const locationResponse = await fetch(locationUrl);
 
-      // Checks whether the location request worked
       if (!locationResponse.ok) {
         throw new Error("Location request failed.");
       }
 
-      // Converts the response into JavaScript data
-      const locationData = await locationResponse.json();
+      const locationData =
+        await locationResponse.json();
 
-      // Runs when no city is found
+      // Runs when the city cannot be found
       if (!locationData.results?.length) {
         setError(
           "City not found. Please check the spelling."
@@ -107,21 +86,14 @@ function Home() {
         return;
       }
 
-      // Selects the first city from the results
+      // Selects the first matching city
       const selectedLocation =
         locationData.results[0];
 
-      // Gets the city coordinates
       const latitude = selectedLocation.latitude;
       const longitude = selectedLocation.longitude;
 
-      /*
-        Requests:
-        - Current weather
-        - Seven-day forecast
-        - Daily high temperatures
-        - Daily low temperatures
-      */
+      // API address used to request the weather
       const weatherUrl =
         `https://api.open-meteo.com/v1/forecast` +
         `?latitude=${latitude}` +
@@ -131,18 +103,17 @@ function Home() {
         `&forecast_days=7` +
         `&timezone=auto`;
 
-      // Sends the city coordinates to the weather API
+      // Second request: find the weather
       const weatherResponse = await fetch(weatherUrl);
 
-      // Checks whether the weather request worked
       if (!weatherResponse.ok) {
         throw new Error("Weather request failed.");
       }
 
-      // Converts the response into JavaScript data
-      const weatherData = await weatherResponse.json();
+      const weatherData =
+        await weatherResponse.json();
 
-      // Saves all the results
+      // Saves all API results
       setLocation(selectedLocation);
       setWeather(weatherData.current);
       setForecast(weatherData.daily);
@@ -153,166 +124,64 @@ function Home() {
         "Something went wrong. Please try again."
       );
     } finally {
-      /*
-        Always stops loading when the search finishes,
-        whether it succeeds or fails.
-      */
+      // Stops the loading state
       setIsLoading(false);
     }
   }
 
   return (
     <main className="home-page">
-      <section className="home-hero">
-        <h1>TripCast</h1>
+      <section className="home-layout">
+        {/* Left side of the page */}
+        <div className="home-intro">
+          <h1>TripCast</h1>
 
-        <p>
-          Plan your trip with accurate weather forecasts.
-        </p>
+          <p>
+            Plan your trip with accurate weather
+            forecasts.
+          </p>
+        </div>
 
-        <form
-          className="city-search"
-          onSubmit={handleSearch}
-        >
-          <label htmlFor="city">
-            Where are you travelling?
-          </label>
+        {/* Search area */}
+        <div className="home-search-area">
+          <SearchForm
+            city={city}
+            setCity={setCity}
+            startDate={startDate}
+            setStartDate={setStartDate}
+            endDate={endDate}
+            setEndDate={setEndDate}
+            isLoading={isLoading}
+            error={error}
+            onSubmit={handleSearch}
+          />
+        </div>
 
-          <div className="search-controls">
-            <input
-              id="city"
-              type="text"
-              placeholder="Enter a city"
-              value={city}
-              onChange={(event) =>
-                setCity(event.target.value)
-              }
-            />
+        {/* Current weather area */}
+        <div className="home-weather-area">
+          <CurrentWeather
+            location={location}
+            weather={weather}
+          />
+        </div>
 
-            <button
-              type="submit"
-              disabled={isLoading}
-            >
-              {isLoading ? "Searching..." : "Search"}
-            </button>
-          </div>
+        {/* Trip summary area */}
+        <div className="home-trip-area">
+          <TripSummary
+            location={location}
+            startDate={startDate}
+            endDate={endDate}
+          />
+        </div>
 
-          {/* Only appears when there is an error */}
-          {error && (
-            <p className="error-message">
-              {error}
-            </p>
-          )}
-        </form>
-
-        {/* Current weather */}
-        {location && weather && (
-          <section className="weather-card">
-            <h2>
-              {location.name}, {location.country}
-            </h2>
-
-            <p className="temperature">
-              {weather.temperature_2m}°C
-            </p>
-
-            <div className="weather-details">
-              <p>
-                Feels like:{" "}
-                {weather.apparent_temperature}°C
-              </p>
-
-              <p>
-                Humidity:{" "}
-                {weather.relative_humidity_2m}%
-              </p>
-
-              <p>
-                Wind speed:{" "}
-                {weather.wind_speed_10m} km/h
-              </p>
-
-              <p>
-                Conditions:{" "}
-                {getWeatherDescription(
-                  weather.weather_code
-                )}
-              </p>
-            </div>
-          </section>
-        )}
-
-        {/* Seven-day forecast */}
-        {forecast && (
-          <section className="forecast-section">
-            <h2>7-Day Forecast</h2>
-
-            <div className="forecast-grid">
-              {forecast.time.map((date, index) => {
-                // Converts the API date into a JavaScript date
-                const selectedDate = new Date(
-                  `${date}T00:00:00`
-                );
-
-                // Creates a short day name such as “Mon”
-                const dayName =
-                  selectedDate.toLocaleDateString(
-                    "en-CA",
-                    {
-                      weekday: "short",
-                    }
-                  );
-
-                // Creates a date such as “Sep 21”
-                const formattedDate =
-                  selectedDate.toLocaleDateString(
-                    "en-CA",
-                    {
-                      month: "short",
-                      day: "numeric",
-                    }
-                  );
-
-                return (
-                  <article
-                    className="forecast-card"
-                    key={date}
-                  >
-                    <h3>{dayName}</h3>
-
-                    <p className="forecast-date">
-                      {formattedDate}
-                    </p>
-
-                    <p className="forecast-condition">
-                      {getWeatherDescription(
-                        forecast.weather_code[index]
-                      )}
-                    </p>
-
-                    <div className="forecast-temperatures">
-                      <span className="forecast-high">
-                        {Math.round(
-                          forecast
-                            .temperature_2m_max[index]
-                        )}
-                        °C
-                      </span>
-
-                      <span className="forecast-low">
-                        {Math.round(
-                          forecast
-                            .temperature_2m_min[index]
-                        )}
-                        °C
-                      </span>
-                    </div>
-                  </article>
-                );
-              })}
-            </div>
-          </section>
-        )}
+        {/* Seven-day forecast area */}
+        <div className="home-forecast-area">
+          <Forecast
+            forecast={forecast}
+            startDate={startDate}
+            endDate={endDate}
+          />
+        </div>
       </section>
     </main>
   );

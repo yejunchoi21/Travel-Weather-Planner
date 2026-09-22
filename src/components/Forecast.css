@@ -1,0 +1,155 @@
+/* ---------- FORECAST SECTION ---------- */
+
+.forecast-section {
+  width: 100%;
+  color: #fff7e9;
+}
+
+.forecast-section > h2 {
+  margin: 0 0 24px;
+  font-size: 26px;
+}
+
+/* ---------- FORECAST CARDS ---------- */
+
+.forecast-grid {
+  display: grid;
+  grid-template-columns:
+    repeat(7, minmax(125px, 1fr));
+  gap: 14px;
+  overflow-x: auto;
+  padding: 0 0 16px;
+  scrollbar-color:
+    #eab36d rgba(255, 255, 255, 0.08);
+  scrollbar-width: thin;
+}
+
+.forecast-grid::-webkit-scrollbar {
+  height: 8px;
+}
+
+.forecast-grid::-webkit-scrollbar-track {
+  background-color: rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+}
+
+.forecast-grid::-webkit-scrollbar-thumb {
+  background-color: #eab36d;
+  border-radius: 10px;
+}
+
+.forecast-card {
+  position: relative;
+  min-width: 125px;
+  padding: 20px 14px;
+  color: #26352f;
+  background-color: #fff7e9;
+  border: 1px solid rgba(222, 216, 205, 0.8);
+  border-radius: 16px;
+  box-shadow: 0 12px 25px rgba(15, 24, 20, 0.18);
+  text-align: center;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.forecast-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 16px 30px rgba(15, 24, 20, 0.24);
+}
+
+.forecast-card h3 {
+  margin: 0 0 6px;
+  font-size: 19px;
+}
+
+.forecast-date {
+  margin: 0 0 18px;
+  color: #89918d;
+  font-size: 12px;
+}
+
+.forecast-condition {
+  min-height: 42px;
+  margin: 0 0 18px;
+  color: #59655f;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.forecast-temperatures {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  font-size: 15px;
+  font-weight: 750;
+}
+
+.forecast-high {
+  color: #c56f3d;
+}
+
+.forecast-low {
+  color: #6b7f8c;
+}
+
+/* ---------- SELECTED TRIP DAYS ---------- */
+
+.forecast-card.trip-day {
+  background-color: #fff1cf;
+  border: 3px solid #eab36d;
+  box-shadow:
+    0 0 0 4px rgba(234, 179, 109, 0.15),
+    0 16px 30px rgba(15, 24, 20, 0.25);
+}
+
+.trip-day-label {
+  display: inline-block;
+  margin-bottom: 12px;
+  padding: 5px 9px;
+  color: #26352f;
+  background-color: #eab36d;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.7px;
+  text-transform: uppercase;
+}
+
+/* ---------- UNAVAILABLE FORECAST ---------- */
+
+.forecast-unavailable {
+  margin: 0 0 22px;
+  padding: 17px 19px;
+  color: #26352f;
+  background-color: #fff1cf;
+  border-left: 5px solid #eab36d;
+  border-radius: 12px;
+}
+
+.forecast-unavailable strong {
+  display: block;
+  margin-bottom: 5px;
+}
+
+.forecast-unavailable p {
+  margin: 0;
+  color: #59655f;
+  font-size: 14px;
+}
+
+/* ---------- PHONE SCREENS ---------- */
+
+@media (max-width: 600px) {
+  .forecast-section > h2 {
+    font-size: 23px;
+  }
+
+  .forecast-grid {
+    grid-template-columns: repeat(7, 135px);
+  }
+
+  .forecast-card {
+    min-width: 135px;
+  }
+}

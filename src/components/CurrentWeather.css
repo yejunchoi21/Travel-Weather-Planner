@@ -1,0 +1,107 @@
+/* ---------- CURRENT WEATHER ---------- */
+
+.weather-card {
+  position: relative;
+  width: 100%;
+  padding: 45px 42px;
+  color: #26352f;
+  background-color: #fff7e9;
+  border-radius: 26px;
+  box-shadow: 0 22px 55px rgba(15, 24, 20, 0.25);
+}
+
+/* Decorative orange circle */
+.weather-card::before {
+  position: absolute;
+  top: 30px;
+  right: 32px;
+  width: 15px;
+  height: 15px;
+  background-color: #eab36d;
+  border-radius: 50%;
+  box-shadow:
+    0 0 0 8px rgba(234, 179, 109, 0.2),
+    0 0 0 16px rgba(234, 179, 109, 0.08);
+  content: "";
+}
+
+/* City and country */
+.weather-card h2 {
+  max-width: calc(100% - 55px);
+  margin: 0 0 28px;
+  color: #26352f;
+  font-size: clamp(24px, 3vw, 32px);
+}
+
+/* Main temperature */
+.temperature {
+  margin: 0 0 48px;
+  color: #c56f3d;
+  font-size: clamp(64px, 8vw, 92px);
+  font-weight: 800;
+  letter-spacing: -5px;
+  line-height: 1;
+}
+
+/* Smaller weather details */
+.weather-details {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  overflow: hidden;
+  border: 1px solid #ded8cd;
+  border-radius: 12px;
+}
+
+.weather-details p {
+  margin: 0;
+  padding: 22px 18px;
+  color: #59655f;
+  border-right: 1px solid #ded8cd;
+  border-bottom: 1px solid #ded8cd;
+  font-size: 15px;
+  line-height: 1.45;
+}
+
+.weather-details p:nth-child(even) {
+  border-right: none;
+}
+
+.weather-details p:nth-last-child(-n + 2) {
+  border-bottom: none;
+}
+
+/* ---------- PHONE SCREENS ---------- */
+
+@media (max-width: 600px) {
+  .weather-card {
+    padding: 40px 20px 28px;
+    border-radius: 20px;
+  }
+
+  .weather-card h2 {
+    margin-bottom: 24px;
+  }
+
+  .temperature {
+    margin-bottom: 38px;
+    font-size: 64px;
+    letter-spacing: -3px;
+  }
+
+  .weather-details {
+    grid-template-columns: 1fr;
+  }
+
+  .weather-details p {
+    border-right: none;
+    border-bottom: 1px solid #ded8cd;
+  }
+
+  .weather-details p:nth-last-child(-n + 2) {
+    border-bottom: 1px solid #ded8cd;
+  }
+
+  .weather-details p:last-child {
+    border-bottom: none;
+  }
+}
