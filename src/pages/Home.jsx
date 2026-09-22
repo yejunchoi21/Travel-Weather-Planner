@@ -3,6 +3,7 @@ import SearchForm from "../components/SearchForm";
 import CurrentWeather from "../components/CurrentWeather";
 import TripSummary from "../components/TripSummary";
 import Forecast from "../components/Forecast";
+import Itinerary from "../components/Itinerary";
 import "./Home.css";
 
 function Home() {
@@ -181,6 +182,13 @@ function Home() {
             startDate={startDate}
             endDate={endDate}
           />
+        </div>
+        <div className="home-itinerary-area">
+            <Itinerary
+                location={location}
+                startDate={startDate}
+                endDate={endDate}
+            />
         </div>
       </section>
     </main>

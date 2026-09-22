@@ -1,0 +1,44 @@
+.itinerary-section {
+  width: 100%;
+  padding: 38px;
+  border-radius: 30px;
+  background-color: #fff5e5;
+  color: #20372f;
+}
+
+.itinerary-heading {
+  margin-bottom: 28px;
+}
+
+.itinerary-label {
+  margin: 0 0 8px;
+  color: #ca6b35;
+  font-size: 0.82rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.itinerary-heading h2 {
+  margin: 0 0 10px;
+  font-size: clamp(1.8rem, 4vw, 2.6rem);
+  line-height: 1.1;
+}
+
+.itinerary-heading span {
+  color: #5b6964;
+  line-height: 1.6;
+}
+
+.itinerary-days {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+@media (max-width: 620px) {
+  .itinerary-section {
+    padding: 24px 18px;
+    border-radius: 22px;
+  }
+}
