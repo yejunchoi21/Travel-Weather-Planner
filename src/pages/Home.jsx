@@ -4,6 +4,7 @@ import CurrentWeather from "../components/CurrentWeather";
 import TripSummary from "../components/TripSummary";
 import Forecast from "../components/Forecast";
 import Itinerary from "../components/Itinerary";
+import PackingList from "../components/PackingList";
 import "./Home.css";
 
 function Home() {
@@ -189,6 +190,13 @@ function Home() {
                 startDate={startDate}
                 endDate={endDate}
             />
+        </div>
+        <div className="home-packing-area">
+        <PackingList
+          location={location}
+          startDate={startDate}
+          endDate={endDate}
+        />
         </div>
       </section>
     </main>
