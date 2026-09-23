@@ -5,50 +5,54 @@ import TripSummary from "../components/TripSummary";
 import Forecast from "../components/Forecast";
 import Itinerary from "../components/Itinerary";
 import PackingList from "../components/PackingList";
+import SaveTripButton from "../components/SaveTripButton";
 import "./Home.css";
 
 function Home() {
-  // City typed into the search box
   const [city, setCity] = useState("");
+  const [startDate, setStartDate] =
+    useState("");
+  const [endDate, setEndDate] =
+    useState("");
 
-  // Selected trip dates
-  const [startDate, setStartDate] = useState("");
-  const [endDate, setEndDate] = useState("");
+  const [location, setLocation] =
+    useState(null);
 
-  // Information returned by the APIs
-  const [location, setLocation] = useState(null);
-  const [weather, setWeather] = useState(null);
-  const [forecast, setForecast] = useState(null);
+  const [weather, setWeather] =
+    useState(null);
 
-  // Loading and error states
-  const [isLoading, setIsLoading] = useState(false);
+  const [forecast, setForecast] =
+    useState(null);
+
+  const [savedTrip, setSavedTrip] =
+    useState(null);
+
+  const [isLoading, setIsLoading] =
+    useState(false);
+
   const [error, setError] = useState("");
 
-  // Runs when the search form is submitted
   async function handleSearch(event) {
     event.preventDefault();
 
-    // Removes an old error
     setError("");
+    setSavedTrip(null);
 
-    // Checks that a city was entered
-    if (city.trim() === "") {
+    if (!city.trim()) {
       setError("Please enter a city.");
       return;
     }
 
-    // Both trip dates must be selected together
     if (
       (startDate && !endDate) ||
       (!startDate && endDate)
     ) {
       setError(
-        "Please select both an arrival and departure date."
+        "Please select both arrival and departure dates."
       );
       return;
     }
 
-    // Departure cannot be before arrival
     if (
       startDate &&
       endDate &&
@@ -60,73 +64,71 @@ function Home() {
       return;
     }
 
-    // Starts the loading state
     setIsLoading(true);
 
-    // API address used to find the city
-    const locationUrl =
-      `https://geocoding-api.open-meteo.com/v1/search` +
-      `?name=${encodeURIComponent(city)}` +
-      `&count=1&language=en&format=json`;
-
     try {
-      // First request: find the city
-      const locationResponse = await fetch(locationUrl);
+      const geocodingResponse = await fetch(
+        `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(
+          city.trim()
+        )}&count=1&language=en&format=json`
+      );
 
-      if (!locationResponse.ok) {
-        throw new Error("Location request failed.");
-      }
-
-      const locationData =
-        await locationResponse.json();
-
-      // Runs when the city cannot be found
-      if (!locationData.results?.length) {
-        setError(
-          "City not found. Please check the spelling."
+      if (!geocodingResponse.ok) {
+        throw new Error(
+          "Unable to search for that city."
         );
-        return;
       }
 
-      // Selects the first matching city
+      const geocodingData =
+        await geocodingResponse.json();
+
+      if (
+        !geocodingData.results ||
+        geocodingData.results.length === 0
+      ) {
+        throw new Error(
+          "City not found. Check the spelling and try again."
+        );
+      }
+
       const selectedLocation =
-        locationData.results[0];
+        geocodingData.results[0];
 
-      const latitude = selectedLocation.latitude;
-      const longitude = selectedLocation.longitude;
-
-      // API address used to request the weather
-      const weatherUrl =
-        `https://api.open-meteo.com/v1/forecast` +
-        `?latitude=${latitude}` +
-        `&longitude=${longitude}` +
-        `&current=temperature_2m,apparent_temperature,relative_humidity_2m,weather_code,wind_speed_10m` +
-        `&daily=weather_code,temperature_2m_max,temperature_2m_min` +
-        `&forecast_days=7` +
-        `&timezone=auto`;
-
-      // Second request: find the weather
-      const weatherResponse = await fetch(weatherUrl);
+      const weatherResponse = await fetch(
+        `https://api.open-meteo.com/v1/forecast?latitude=${selectedLocation.latitude}&longitude=${selectedLocation.longitude}&current=temperature_2m,apparent_temperature,relative_humidity_2m,weather_code,wind_speed_10m&daily=weather_code,temperature_2m_max,temperature_2m_min&timezone=auto`
+      );
 
       if (!weatherResponse.ok) {
-        throw new Error("Weather request failed.");
+        throw new Error(
+          "Unable to retrieve weather information."
+        );
       }
 
       const weatherData =
         await weatherResponse.json();
 
-      // Saves all API results
-      setLocation(selectedLocation);
+      setLocation({
+        name: selectedLocation.name,
+        country:
+          selectedLocation.country ||
+          "Unknown country",
+        latitude: selectedLocation.latitude,
+        longitude:
+          selectedLocation.longitude,
+      });
+
       setWeather(weatherData.current);
       setForecast(weatherData.daily);
-    } catch (requestError) {
-      console.error(requestError);
+    } catch (searchError) {
+      setLocation(null);
+      setWeather(null);
+      setForecast(null);
 
       setError(
-        "Something went wrong. Please try again."
+        searchError.message ||
+          "Something went wrong. Please try again."
       );
     } finally {
-      // Stops the loading state
       setIsLoading(false);
     }
   }
@@ -134,17 +136,19 @@ function Home() {
   return (
     <main className="home-page">
       <section className="home-layout">
-        {/* Left side of the page */}
-        <div className="home-intro">
+        <header className="home-intro">
+          <p className="home-eyebrow">
+            Weather-based travel planner
+          </p>
+
           <h1>TripCast</h1>
 
-          <p>
+          <p className="home-subtitle">
             Plan your trip with accurate weather
             forecasts.
           </p>
-        </div>
+        </header>
 
-        {/* Search area */}
         <div className="home-search-area">
           <SearchForm
             city={city}
@@ -159,7 +163,6 @@ function Home() {
           />
         </div>
 
-        {/* Current weather area */}
         <div className="home-weather-area">
           <CurrentWeather
             location={location}
@@ -167,7 +170,6 @@ function Home() {
           />
         </div>
 
-        {/* Trip summary area */}
         <div className="home-trip-area">
           <TripSummary
             location={location}
@@ -176,7 +178,6 @@ function Home() {
           />
         </div>
 
-        {/* Seven-day forecast area */}
         <div className="home-forecast-area">
           <Forecast
             forecast={forecast}
@@ -184,19 +185,32 @@ function Home() {
             endDate={endDate}
           />
         </div>
-        <div className="home-itinerary-area">
-            <Itinerary
-                location={location}
-                startDate={startDate}
-                endDate={endDate}
-            />
+
+        <div className="home-save-area">
+          <SaveTripButton
+            location={location}
+            startDate={startDate}
+            endDate={endDate}
+            onTripSaved={setSavedTrip}
+          />
         </div>
+
+        <div className="home-itinerary-area">
+          <Itinerary
+            location={location}
+            startDate={startDate}
+            endDate={endDate}
+            tripId={savedTrip?.id}
+          />
+        </div>
+
         <div className="home-packing-area">
-        <PackingList
-          location={location}
-          startDate={startDate}
-          endDate={endDate}
-        />
+          <PackingList
+            location={location}
+            startDate={startDate}
+            endDate={endDate}
+            tripId={savedTrip?.id}
+          />
         </div>
       </section>
     </main>

@@ -1,159 +1,224 @@
-import { useState } from "react";
-import "./ItineraryDay.css";
+import { useEffect, useState } from "react";
+import { supabase } from "../lib/supabaseClient";
+import {
+  formatTripDate,
+  getTripDates,
+} from "../utils/dates";
+import ItineraryDay from "./ItineraryDay";
+import "./Itinerary.css";
 
-function ItineraryDay({
-  date,
-  dayNumber,
-  formattedDate,
-  activities,
-  onAddActivity,
-  onDeleteActivity,
+function Itinerary({
+  location,
+  startDate,
+  endDate,
+  tripId,
 }) {
-  const [showForm, setShowForm] = useState(false);
-  const [activityName, setActivityName] =
-    useState("");
-  const [activityTime, setActivityTime] =
-    useState("");
+  const [activities, setActivities] =
+    useState({});
 
-  function handleSubmit(event) {
-    event.preventDefault();
+  const [isLoading, setIsLoading] =
+    useState(false);
 
-    if (!activityName.trim()) {
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    async function loadActivities() {
+      if (!tripId) {
+        setActivities({});
+        return;
+      }
+
+      setIsLoading(true);
+      setError("");
+
+      const { data, error: loadError } =
+        await supabase
+          .from("activities")
+          .select("*")
+          .eq("trip_id", tripId)
+          .order("activity_date", {
+            ascending: true,
+          })
+          .order("activity_time", {
+            ascending: true,
+            nullsFirst: false,
+          });
+
+      if (loadError) {
+        setError(loadError.message);
+        setIsLoading(false);
+        return;
+      }
+
+      const groupedActivities = {};
+
+      data.forEach((activity) => {
+        const date = activity.activity_date;
+
+        if (!groupedActivities[date]) {
+          groupedActivities[date] = [];
+        }
+
+        groupedActivities[date].push({
+          id: activity.id,
+          name: activity.name,
+          time: activity.activity_time
+            ? activity.activity_time.slice(0, 5)
+            : "",
+        });
+      });
+
+      setActivities(groupedActivities);
+      setIsLoading(false);
+    }
+
+    loadActivities();
+  }, [tripId]);
+
+  if (!location || !startDate || !endDate) {
+    return null;
+  }
+
+  const tripDates = getTripDates(
+    startDate,
+    endDate
+  );
+
+  async function addActivity(
+    date,
+    newActivity
+  ) {
+    if (!tripId) {
+      setError(
+        "Save the trip before adding activities."
+      );
+
+      return false;
+    }
+
+    setError("");
+
+    const { data, error: saveError } =
+      await supabase
+        .from("activities")
+        .insert({
+          trip_id: tripId,
+          activity_date: date,
+          activity_time:
+            newActivity.time || null,
+          name: newActivity.name,
+        })
+        .select()
+        .single();
+
+    if (saveError) {
+      setError(saveError.message);
+      return false;
+    }
+
+    const savedActivity = {
+      id: data.id,
+      name: data.name,
+      time: data.activity_time
+        ? data.activity_time.slice(0, 5)
+        : "",
+    };
+
+    setActivities((currentActivities) => ({
+      ...currentActivities,
+
+      [date]: [
+        ...(currentActivities[date] || []),
+        savedActivity,
+      ],
+    }));
+
+    return true;
+  }
+
+  async function deleteActivity(
+    date,
+    activityId
+  ) {
+    setError("");
+
+    const { error: deleteError } =
+      await supabase
+        .from("activities")
+        .delete()
+        .eq("id", activityId);
+
+    if (deleteError) {
+      setError(deleteError.message);
       return;
     }
 
-    const newActivity = {
-      id: crypto.randomUUID(),
-      name: activityName.trim(),
-      time: activityTime,
-    };
+    setActivities((currentActivities) => ({
+      ...currentActivities,
 
-    onAddActivity(date, newActivity);
-
-    setActivityName("");
-    setActivityTime("");
-    setShowForm(false);
-  }
-
-  function handleCancel() {
-    setActivityName("");
-    setActivityTime("");
-    setShowForm(false);
+      [date]: (
+        currentActivities[date] || []
+      ).filter(
+        (activity) =>
+          activity.id !== activityId
+      ),
+    }));
   }
 
   return (
-    <article className="itinerary-day">
-      <div className="itinerary-day-number">
-        Day {dayNumber}
+    <section className="itinerary-section">
+      <div className="itinerary-heading">
+        <p className="itinerary-label">
+          Plan each day
+        </p>
+
+        <h2>Your itinerary</h2>
+
+        <span>
+          {location.name}, {location.country}
+        </span>
       </div>
 
-      <h3>{formattedDate}</h3>
+      {!tripId && (
+        <p className="itinerary-save-notice">
+          Save your trip before adding activities.
+        </p>
+      )}
 
-      {activities.length === 0 ? (
-        <p className="itinerary-empty">
-          No activities added yet.
+      {error && (
+        <p className="itinerary-error">
+          {error}
+        </p>
+      )}
+
+      {isLoading ? (
+        <p className="itinerary-loading">
+          Loading activities...
         </p>
       ) : (
-        <ul className="activity-list">
-          {activities.map((activity) => (
-            <li
-              className="activity-item"
-              key={activity.id}
-            >
-              <div className="activity-information">
-                {activity.time && (
-                  <span className="activity-time">
-                    {activity.time}
-                  </span>
-                )}
-
-                <span className="activity-name">
-                  {activity.name}
-                </span>
-              </div>
-
-              <button
-                className="delete-activity-button"
-                type="button"
-                onClick={() =>
-                  onDeleteActivity(
-                    date,
-                    activity.id
-                  )
-                }
-              >
-                Delete
-              </button>
-            </li>
+        <div className="itinerary-days">
+          {tripDates.map((date, index) => (
+            <ItineraryDay
+              key={date}
+              date={date}
+              dayNumber={index + 1}
+              formattedDate={formatTripDate(
+                date
+              )}
+              activities={
+                activities[date] || []
+              }
+              canAddActivities={Boolean(tripId)}
+              onAddActivity={addActivity}
+              onDeleteActivity={
+                deleteActivity
+              }
+            />
           ))}
-        </ul>
+        </div>
       )}
-
-      {!showForm ? (
-        <button
-          type="button"
-          className="add-activity-button"
-          onClick={() => setShowForm(true)}
-        >
-          + Add activity
-        </button>
-      ) : (
-        <form
-          className="activity-form"
-          onSubmit={handleSubmit}
-        >
-          <div className="activity-fields">
-            <label>
-              <span>Time</span>
-
-              <input
-                type="time"
-                value={activityTime}
-                onChange={(event) =>
-                  setActivityTime(
-                    event.target.value
-                  )
-                }
-              />
-            </label>
-
-            <label className="activity-name-field">
-              <span>Activity</span>
-
-              <input
-                type="text"
-                placeholder="Example: Visit the CN Tower"
-                value={activityName}
-                onChange={(event) =>
-                  setActivityName(
-                    event.target.value
-                  )
-                }
-                autoFocus
-              />
-            </label>
-          </div>
-
-          <div className="activity-form-buttons">
-            <button
-              type="button"
-              className="cancel-activity-button"
-              onClick={handleCancel}
-            >
-              Cancel
-            </button>
-
-            <button
-              type="submit"
-              className="save-activity-button"
-            >
-              Add
-            </button>
-          </div>
-        </form>
-      )}
-    </article>
+    </section>
   );
 }
 
-export default ItineraryDay;
+export default Itinerary;

@@ -1,0 +1,99 @@
+.save-trip-section {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 24px;
+  width: 100%;
+  padding: 28px 30px;
+  box-sizing: border-box;
+  border: 1px solid rgba(237, 179, 102, 0.35);
+  border-radius: 24px;
+  background-color: #2b463d;
+  color: #fffaf0;
+}
+
+.save-trip-label {
+  margin: 0 0 6px;
+  color: #edb366;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.save-trip-section h2 {
+  margin: 0 0 8px;
+  font-size: 1.65rem;
+}
+
+.save-trip-description {
+  max-width: 500px;
+  margin: 0;
+  color: rgba(255, 250, 240, 0.7);
+  line-height: 1.5;
+}
+
+.save-trip-button {
+  min-width: 140px;
+  padding: 13px 22px;
+  border: 2px solid #edb366;
+  border-radius: 999px;
+  background-color: #edb366;
+  color: #20372f;
+  font: inherit;
+  font-weight: 800;
+  cursor: pointer;
+  transition:
+    transform 0.2s ease,
+    background-color 0.2s ease,
+    color 0.2s ease;
+}
+
+.save-trip-button:hover:not(:disabled) {
+  background-color: transparent;
+  color: #fffaf0;
+  transform: translateY(-2px);
+}
+
+.save-trip-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+
+.trip-saved-message {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 12px 18px;
+  border-radius: 999px;
+  background-color: #dcece3;
+  color: #285d42;
+  font-weight: 800;
+}
+
+.trip-saved-check {
+  font-size: 1.2rem;
+}
+
+.save-trip-error {
+  grid-column: 1 / -1;
+  margin: 0;
+  padding: 11px 14px;
+  border-radius: 11px;
+  background-color: #fbe1dc;
+  color: #9a382b;
+}
+
+@media (max-width: 620px) {
+  .save-trip-section {
+    grid-template-columns: 1fr;
+    padding: 24px 20px;
+  }
+
+  .save-trip-button,
+  .trip-saved-message {
+    width: 100%;
+    box-sizing: border-box;
+    justify-content: center;
+  }
+}
