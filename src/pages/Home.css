@@ -1,178 +1,146 @@
-.home-page,
-.home-page *,
-.home-page *::before,
-.home-page *::after {
+#root {
+  width: 100%;
+  min-height: 100vh;
+}
+
+* {
   box-sizing: border-box;
 }
 
-.home-page {
+.app {
   min-height: 100vh;
-  padding: 36px;
-  overflow-x: hidden;
-  background-color: #f4efe6;
+  background-color: #f3eee4;
 }
 
-.home-layout {
-  position: relative;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  gap: 28px;
-  width: min(100%, 1200px);
-  min-height: calc(100vh - 72px);
-  margin: 0 auto;
-  padding: 70px 50px;
-  overflow: hidden;
-  border-radius: 32px;
-  background-color: #20372f;
-  box-shadow: 0 22px 60px rgba(31, 54, 47, 0.18);
-}
-
-.home-layout::before {
-  position: absolute;
-  top: -180px;
-  right: -150px;
-  width: 430px;
-  height: 430px;
-  border-radius: 50%;
-  background-color: rgba(237, 179, 102, 0.14);
-  content: "";
-  pointer-events: none;
-}
-
-.home-layout::after {
-  position: absolute;
-  bottom: -230px;
-  left: -150px;
-  width: 480px;
-  height: 480px;
-  border: 55px solid rgba(255, 250, 240, 0.05);
-  border-radius: 50%;
-  content: "";
-  pointer-events: none;
-}
-
-.home-intro {
-  position: relative;
-  z-index: 1;
-  width: min(100%, 900px);
-  margin: 0 auto 18px;
-  text-align: center;
-}
-
-.home-eyebrow {
-  margin: 0 0 14px;
-  color: #edb366;
-  font-size: 0.82rem;
-  font-weight: 800;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-}
-
-.home-intro h1 {
-  margin: 0;
-  color: #fff7e9;
-  font-size: clamp(4.5rem, 12vw, 9rem);
-  font-weight: 900;
-  letter-spacing: -0.075em;
-  line-height: 0.85;
-}
-
-.home-subtitle {
-  max-width: 620px;
-  margin: 34px auto 0;
-  color: rgba(255, 247, 233, 0.82);
-  font-size: clamp(1.2rem, 3vw, 1.8rem);
-  line-height: 1.5;
-}
-
-.home-search-area,
-.home-weather-area,
-.home-trip-area,
-.home-forecast-area,
-.home-itinerary-area,
-.home-packing-area,
-.home-save-area {
-  position: relative;
-  z-index: 1;
-  width: min(100%, 900px);
-  max-width: 900px;
-  min-width: 0;
-  margin-right: auto;
-  margin-left: auto;
-  justify-self: center;
-}
-
-.home-search-area > *,
-.home-weather-area > *,
-.home-trip-area > *,
-.home-forecast-area > *,
-.home-itinerary-area > *,
-.home-packing-area > *,
-.home-save-area > * {
+.app-navigation {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  display: flex;
   width: 100%;
-  max-width: 100%;
-  margin-right: auto;
-  margin-left: auto;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 18px clamp(24px, 6vw, 90px);
+  border-bottom: 1px solid
+    rgba(32, 55, 47, 0.12);
+  background-color: rgba(243, 238, 228, 0.94);
+  backdrop-filter: blur(12px);
 }
 
-.home-weather-area:empty,
-.home-trip-area:empty,
-.home-forecast-area:empty,
-.home-itinerary-area:empty,
-.home-packing-area:empty,
-.home-save-area:empty {
-  display: none;
+.app-logo {
+  padding: 0;
+  border: none;
+  background: none;
+  color: #20372f;
+  font-family: inherit;
+  font-size: 1.8rem;
+  font-weight: 900;
+  letter-spacing: -0.05em;
+  cursor: pointer;
 }
 
-@media (max-width: 900px) {
-  .home-page {
-    padding: 20px;
-  }
-
-  .home-layout {
-    min-height: calc(100vh - 40px);
-    padding: 55px 28px;
-    border-radius: 26px;
-  }
-
-  .home-intro h1 {
-    font-size: clamp(4rem, 18vw, 7rem);
-  }
+.app-navigation-links {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
-@media (max-width: 620px) {
-  .home-page {
-    padding: 0;
+.navigation-button,
+.sign-out-button {
+  padding: 11px 18px;
+  border-radius: 999px;
+  font-family: inherit;
+  font-size: 0.95rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.navigation-button {
+  border: 2px solid transparent;
+  background-color: transparent;
+  color: #20372f;
+}
+
+.navigation-button:hover {
+  background-color: rgba(32, 55, 47, 0.08);
+}
+
+.navigation-button.active {
+  border-color: #20372f;
+  background-color: #20372f;
+  color: #fff5e5;
+}
+
+.sign-out-button {
+  margin-left: 8px;
+  border: 2px solid #edb366;
+  background-color: #edb366;
+  color: #20372f;
+}
+
+.sign-out-button:hover {
+  border-color: #ca6b35;
+  background-color: #ca6b35;
+  color: #fff5e5;
+  transform: translateY(-2px);
+}
+
+.app-loading {
+  display: grid;
+  min-height: 100vh;
+  place-items: center;
+  background-color: #f3eee4;
+  color: #20372f;
+  font-size: 1.2rem;
+  font-weight: 800;
+}
+
+@media (max-width: 650px) {
+  .app-navigation {
+    flex-direction: column;
+    gap: 14px;
+    padding: 16px;
   }
 
-  .home-layout {
-    gap: 22px;
-    min-height: 100vh;
-    padding: 45px 16px;
-    border-radius: 0;
-  }
-
-  .home-intro {
-    margin-bottom: 10px;
-  }
-
-  .home-intro h1 {
-    font-size: clamp(3.7rem, 22vw, 5.5rem);
-  }
-
-  .home-subtitle {
-    margin-top: 24px;
-    font-size: 1.1rem;
-  }
-
-  .home-search-area,
-  .home-weather-area,
-  .home-trip-area,
-  .home-forecast-area,
-  .home-itinerary-area,
-  .home-packing-area,
-  .home-save-area {
+  .app-navigation-links {
     width: 100%;
-    max-width: 100%;
   }
+
+  .navigation-button,
+  .sign-out-button {
+    flex: 1;
+    padding: 10px 8px;
+    font-size: 0.85rem;
+  }
+
+  .sign-out-button {
+    margin-left: 0;
+  }
+}
+
+/* Keeps all homepage sections at a readable width */
+.home-layout {
+  width: min(100%, 1250px);
+  margin: 0 auto;
+}
+
+.home-save-area,
+.home-itinerary-area,
+.home-packing-area {
+  width: 100%;
+}
+
+/* Consistent space between the lower sections */
+.home-save-area {
+  margin-top: 10px;
+}
+
+.home-itinerary-area,
+.home-packing-area {
+  margin-top: 24px;
 }

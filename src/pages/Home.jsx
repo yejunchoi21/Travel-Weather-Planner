@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import SearchForm from "../components/SearchForm";
 import CurrentWeather from "../components/CurrentWeather";
 import TripSummary from "../components/TripSummary";
@@ -8,29 +8,87 @@ import PackingList from "../components/PackingList";
 import SaveTripButton from "../components/SaveTripButton";
 import "./Home.css";
 
-function Home() {
-  const [city, setCity] = useState("");
-  const [startDate, setStartDate] =
-    useState("");
-  const [endDate, setEndDate] =
-    useState("");
+function Home({ initialTrip }) {
+  const [city, setCity] = useState(
+    initialTrip?.city || ""
+  );
 
-  const [location, setLocation] =
-    useState(null);
+  const [startDate, setStartDate] = useState(
+    initialTrip?.start_date || ""
+  );
 
-  const [weather, setWeather] =
-    useState(null);
+  const [endDate, setEndDate] = useState(
+    initialTrip?.end_date || ""
+  );
 
+  const [location, setLocation] = useState(
+    initialTrip
+      ? {
+          name: initialTrip.city,
+          country: initialTrip.country,
+          latitude: initialTrip.latitude,
+          longitude: initialTrip.longitude,
+        }
+      : null
+  );
+
+  const [weather, setWeather] = useState(null);
   const [forecast, setForecast] =
     useState(null);
 
-  const [savedTrip, setSavedTrip] =
-    useState(null);
+  const [savedTrip, setSavedTrip] = useState(
+    initialTrip || null
+  );
 
   const [isLoading, setIsLoading] =
     useState(false);
 
   const [error, setError] = useState("");
+
+  async function getWeather(latitude, longitude) {
+    const weatherResponse = await fetch(
+      `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,apparent_temperature,relative_humidity_2m,weather_code,wind_speed_10m&daily=weather_code,temperature_2m_max,temperature_2m_min&timezone=auto`
+    );
+
+    if (!weatherResponse.ok) {
+      throw new Error(
+        "Unable to retrieve weather information."
+      );
+    }
+
+    return weatherResponse.json();
+  }
+
+  // Load fresh weather when opening a saved trip
+  useEffect(() => {
+    if (!initialTrip) {
+      return;
+    }
+
+    async function loadSavedTripWeather() {
+      setIsLoading(true);
+      setError("");
+
+      try {
+        const weatherData = await getWeather(
+          initialTrip.latitude,
+          initialTrip.longitude
+        );
+
+        setWeather(weatherData.current);
+        setForecast(weatherData.daily);
+      } catch (weatherError) {
+        setError(
+          weatherError.message ||
+            "Unable to load the trip weather."
+        );
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    loadSavedTripWeather();
+  }, [initialTrip]);
 
   async function handleSearch(event) {
     event.preventDefault();
@@ -94,18 +152,10 @@ function Home() {
       const selectedLocation =
         geocodingData.results[0];
 
-      const weatherResponse = await fetch(
-        `https://api.open-meteo.com/v1/forecast?latitude=${selectedLocation.latitude}&longitude=${selectedLocation.longitude}&current=temperature_2m,apparent_temperature,relative_humidity_2m,weather_code,wind_speed_10m&daily=weather_code,temperature_2m_max,temperature_2m_min&timezone=auto`
+      const weatherData = await getWeather(
+        selectedLocation.latitude,
+        selectedLocation.longitude
       );
-
-      if (!weatherResponse.ok) {
-        throw new Error(
-          "Unable to retrieve weather information."
-        );
-      }
-
-      const weatherData =
-        await weatherResponse.json();
 
       setLocation({
         name: selectedLocation.name,
@@ -113,8 +163,7 @@ function Home() {
           selectedLocation.country ||
           "Unknown country",
         latitude: selectedLocation.latitude,
-        longitude:
-          selectedLocation.longitude,
+        longitude: selectedLocation.longitude,
       });
 
       setWeather(weatherData.current);
@@ -187,12 +236,19 @@ function Home() {
         </div>
 
         <div className="home-save-area">
-          <SaveTripButton
-            location={location}
-            startDate={startDate}
-            endDate={endDate}
-            onTripSaved={setSavedTrip}
-          />
+          {savedTrip ? (
+            <div className="home-saved-trip-message">
+              <span>✓</span>
+              This trip is saved to your account.
+            </div>
+          ) : (
+            <SaveTripButton
+              location={location}
+              startDate={startDate}
+              endDate={endDate}
+              onTripSaved={setSavedTrip}
+            />
+          )}
         </div>
 
         <div className="home-itinerary-area">

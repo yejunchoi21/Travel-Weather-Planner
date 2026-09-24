@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "./lib/supabaseClient";
 import Auth from "./components/Auth";
 import Home from "./pages/Home";
+import MyTrips from "./pages/MyTrips";
 import "./App.css";
 
 function App() {
@@ -9,23 +10,28 @@ function App() {
   const [isCheckingSession, setIsCheckingSession] =
     useState(true);
 
-  useEffect(() => {
-    async function getCurrentSession() {
-      const {
-        data: { session: currentSession },
-      } = await supabase.auth.getSession();
+  const [currentPage, setCurrentPage] =
+    useState("planner");
 
-      setSession(currentSession);
+  const [selectedTrip, setSelectedTrip] =
+    useState(null);
+
+  useEffect(() => {
+    async function getSession() {
+      const { data } =
+        await supabase.auth.getSession();
+
+      setSession(data.session);
       setIsCheckingSession(false);
     }
 
-    getCurrentSession();
+    getSession();
 
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(
-      (_event, updatedSession) => {
-        setSession(updatedSession);
+      (_event, newSession) => {
+        setSession(newSession);
         setIsCheckingSession(false);
       }
     );
@@ -36,20 +42,27 @@ function App() {
   }, []);
 
   async function handleSignOut() {
-    const { error } = await supabase.auth.signOut();
+    await supabase.auth.signOut();
 
-    if (error) {
-      console.error("Sign-out error:", error.message);
-    }
+    setCurrentPage("planner");
+    setSelectedTrip(null);
+  }
+
+  function handleOpenTrip(trip) {
+    setSelectedTrip(trip);
+    setCurrentPage("planner");
+  }
+
+  function handleNewTrip() {
+    setSelectedTrip(null);
+    setCurrentPage("planner");
   }
 
   if (isCheckingSession) {
     return (
-      <main className="app-loading">
-        <div className="app-loading-circle" />
-
-        <p>Loading TripCast...</p>
-      </main>
+      <div className="app-loading">
+        Loading TripCast...
+      </div>
     );
   }
 
@@ -59,27 +72,60 @@ function App() {
 
   return (
     <div className="app">
-      <header className="app-header">
-        <div>
-          <span className="app-logo">
-            TripCast
-          </span>
-
-          <span className="app-user-email">
-            {session.user.email}
-          </span>
-        </div>
-
+      <nav className="app-navigation">
         <button
-          className="sign-out-button"
+          className="app-logo"
           type="button"
-          onClick={handleSignOut}
+          onClick={handleNewTrip}
         >
-          Sign out
+          TripCast
         </button>
-      </header>
 
-      <Home />
+        <div className="app-navigation-links">
+          <button
+            className={
+              currentPage === "planner"
+                ? "navigation-button active"
+                : "navigation-button"
+            }
+            type="button"
+            onClick={handleNewTrip}
+          >
+            Planner
+          </button>
+
+          <button
+            className={
+              currentPage === "trips"
+                ? "navigation-button active"
+                : "navigation-button"
+            }
+            type="button"
+            onClick={() =>
+              setCurrentPage("trips")
+            }
+          >
+            My Trips
+          </button>
+
+          <button
+            className="sign-out-button"
+            type="button"
+            onClick={handleSignOut}
+          >
+            Sign out
+          </button>
+        </div>
+      </nav>
+
+      {currentPage === "planner" ? (
+        <Home
+          key={selectedTrip?.id || "new-trip"}
+          initialTrip={selectedTrip}
+        />
+      ) : (
+        <MyTrips onOpenTrip={handleOpenTrip} />
+      )}
     </div>
   );
 }
