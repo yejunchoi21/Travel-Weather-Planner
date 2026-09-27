@@ -13,39 +13,47 @@ function Home({ initialTrip }) {
     initialTrip?.city || ""
   );
 
-  const [startDate, setStartDate] = useState(
-    initialTrip?.start_date || ""
-  );
+  const [startDate, setStartDate] =
+    useState(
+      initialTrip?.start_date || ""
+    );
 
-  const [endDate, setEndDate] = useState(
-    initialTrip?.end_date || ""
-  );
+  const [endDate, setEndDate] =
+    useState(initialTrip?.end_date || "");
 
-  const [location, setLocation] = useState(
-    initialTrip
-      ? {
-          name: initialTrip.city,
-          country: initialTrip.country,
-          latitude: initialTrip.latitude,
-          longitude: initialTrip.longitude,
-        }
-      : null
-  );
+  const [location, setLocation] =
+    useState(
+      initialTrip
+        ? {
+            name: initialTrip.city,
+            country: initialTrip.country,
+            latitude:
+              initialTrip.latitude,
+            longitude:
+              initialTrip.longitude,
+          }
+        : null
+    );
 
-  const [weather, setWeather] = useState(null);
+  const [weather, setWeather] =
+    useState(null);
+
   const [forecast, setForecast] =
     useState(null);
 
-  const [savedTrip, setSavedTrip] = useState(
-    initialTrip || null
-  );
+  const [savedTrip, setSavedTrip] =
+    useState(initialTrip || null);
 
   const [isLoading, setIsLoading] =
     useState(false);
 
-  const [error, setError] = useState("");
+  const [error, setError] =
+    useState("");
 
-  async function getWeather(latitude, longitude) {
+  async function getWeather(
+    latitude,
+    longitude
+  ) {
     const weatherResponse = await fetch(
       `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,apparent_temperature,relative_humidity_2m,weather_code,wind_speed_10m&daily=weather_code,temperature_2m_max,temperature_2m_min&timezone=auto`
     );
@@ -59,9 +67,48 @@ function Home({ initialTrip }) {
     return weatherResponse.json();
   }
 
-  // Load fresh weather when opening a saved trip
+  /*
+    Updates the page whenever the user
+    opens a saved trip from My Trips.
+  */
   useEffect(() => {
     if (!initialTrip) {
+      return;
+    }
+
+    setCity(initialTrip.city || "");
+
+    setStartDate(
+      initialTrip.start_date || ""
+    );
+
+    setEndDate(
+      initialTrip.end_date || ""
+    );
+
+    setLocation({
+      name: initialTrip.city,
+      country: initialTrip.country,
+      latitude: initialTrip.latitude,
+      longitude: initialTrip.longitude,
+    });
+
+    /*
+      This must contain the complete trip
+      record, including initialTrip.id.
+    */
+    setSavedTrip(initialTrip);
+  }, [initialTrip]);
+
+  /*
+    Loads fresh weather whenever a saved
+    trip is opened.
+  */
+  useEffect(() => {
+    if (
+      !initialTrip?.latitude ||
+      !initialTrip?.longitude
+    ) {
       return;
     }
 
@@ -70,10 +117,11 @@ function Home({ initialTrip }) {
       setError("");
 
       try {
-        const weatherData = await getWeather(
-          initialTrip.latitude,
-          initialTrip.longitude
-        );
+        const weatherData =
+          await getWeather(
+            initialTrip.latitude,
+            initialTrip.longitude
+          );
 
         setWeather(weatherData.current);
         setForecast(weatherData.daily);
@@ -94,6 +142,11 @@ function Home({ initialTrip }) {
     event.preventDefault();
 
     setError("");
+
+    /*
+      A new search is not saved yet,
+      so remove the previous trip ID.
+    */
     setSavedTrip(null);
 
     if (!city.trim()) {
@@ -125,11 +178,12 @@ function Home({ initialTrip }) {
     setIsLoading(true);
 
     try {
-      const geocodingResponse = await fetch(
-        `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(
-          city.trim()
-        )}&count=1&language=en&format=json`
-      );
+      const geocodingResponse =
+        await fetch(
+          `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(
+            city.trim()
+          )}&count=1&language=en&format=json`
+        );
 
       if (!geocodingResponse.ok) {
         throw new Error(
@@ -152,18 +206,21 @@ function Home({ initialTrip }) {
       const selectedLocation =
         geocodingData.results[0];
 
-      const weatherData = await getWeather(
-        selectedLocation.latitude,
-        selectedLocation.longitude
-      );
+      const weatherData =
+        await getWeather(
+          selectedLocation.latitude,
+          selectedLocation.longitude
+        );
 
       setLocation({
         name: selectedLocation.name,
         country:
           selectedLocation.country ||
           "Unknown country",
-        latitude: selectedLocation.latitude,
-        longitude: selectedLocation.longitude,
+        latitude:
+          selectedLocation.latitude,
+        longitude:
+          selectedLocation.longitude,
       });
 
       setWeather(weatherData.current);
@@ -193,8 +250,8 @@ function Home({ initialTrip }) {
           <h1>TripCast</h1>
 
           <p className="home-subtitle">
-            Plan your trip with accurate weather
-            forecasts.
+            Plan your trip with accurate
+            weather forecasts.
           </p>
         </header>
 
@@ -236,10 +293,11 @@ function Home({ initialTrip }) {
         </div>
 
         <div className="home-save-area">
-          {savedTrip ? (
+          {savedTrip?.id ? (
             <div className="home-saved-trip-message">
               <span>✓</span>
-              This trip is saved to your account.
+              This trip is saved to your
+              account.
             </div>
           ) : (
             <SaveTripButton

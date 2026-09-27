@@ -1,35 +1,209 @@
-.itinerary-section {
-  padding: 48px;
-  border-radius: 30px;
+.itinerary-day {
+  width: 100%;
+  padding: 28px;
+  border: 1px solid rgba(32, 55, 47, 0.14);
+  border-radius: 24px;
+  background-color: #fffaf0;
+  box-shadow: 0 10px 28px rgba(32, 55, 47, 0.08);
 }
 
-.itinerary-heading {
-  max-width: 650px;
-  margin: 0 auto 34px;
-  text-align: center;
+.itinerary-day-header {
+  margin-bottom: 20px;
 }
 
-.itinerary-heading > p:first-child {
-  margin: 0 0 10px;
+.itinerary-day-number {
+  margin: 0 0 7px;
   color: #ca6b35;
-  font-size: 0.82rem;
+  font-size: 0.8rem;
   font-weight: 900;
-  letter-spacing: 0.14em;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
 }
 
-.itinerary-heading h2 {
-  margin: 0 0 12px;
+.itinerary-day h3 {
+  margin: 0;
+  color: #20372f;
+  font-size: 1.35rem;
+}
+
+.itinerary-empty {
+  margin: 0 0 18px;
+  color: #68736f;
+}
+
+.activity-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 0 0 20px;
+  padding: 0;
+  list-style: none;
+}
+
+.activity-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 16px 18px;
+  border-radius: 16px;
+  background-color: #f4e8d5;
+}
+
+.activity-details {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  min-width: 0;
+}
+
+.activity-time {
+  flex-shrink: 0;
+  color: #ca6b35;
+  font-weight: 800;
+}
+
+.activity-name {
+  color: #20372f;
+  overflow-wrap: anywhere;
+}
+
+.add-activity-button,
+.save-activity-button,
+.cancel-activity-button,
+.delete-activity-button {
+  border: 0;
+  font: inherit;
+  font-weight: 800;
+  cursor: pointer;
+  transition:
+    transform 0.2s ease,
+    background-color 0.2s ease,
+    opacity 0.2s ease;
+}
+
+.add-activity-button {
+  padding: 12px 20px;
+  border-radius: 999px;
+  background-color: #edb366;
   color: #20372f;
 }
 
-.itinerary-heading span {
-  color: #5b6964;
-  font-size: 1.05rem;
+.add-activity-button:hover:not(:disabled) {
+  background-color: #ca6b35;
+  color: #fffaf0;
+  transform: translateY(-2px);
+}
+
+.add-activity-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.delete-activity-button {
+  flex-shrink: 0;
+  padding: 9px 14px;
+  border-radius: 999px;
+  background-color: #f8d9ca;
+  color: #a3422d;
+}
+
+.delete-activity-button:hover {
+  background-color: #a3422d;
+  color: white;
+}
+
+.activity-form {
+  display: grid;
+  grid-template-columns: 160px minmax(0, 1fr);
+  gap: 18px;
+  margin-top: 18px;
+  padding: 22px;
+  border-radius: 20px;
+  background-color: #f4e8d5;
+}
+
+.activity-form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.activity-form-field label {
+  color: #20372f;
+  font-weight: 800;
+}
+
+.activity-form-field input {
+  width: 100%;
+  min-height: 50px;
+  padding: 12px 14px;
+  border: 1px solid rgba(32, 55, 47, 0.22);
+  border-radius: 12px;
+  background-color: white;
+  color: #20372f;
+  font: inherit;
+}
+
+.activity-form-field input:focus {
+  border-color: #ca6b35;
+  outline: 3px solid rgba(202, 107, 53, 0.18);
+}
+
+.activity-form-buttons {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.cancel-activity-button,
+.save-activity-button {
+  padding: 11px 20px;
+  border-radius: 999px;
+}
+
+.cancel-activity-button {
+  border: 1px solid #20372f;
+  background-color: transparent;
+  color: #20372f;
+}
+
+.save-activity-button {
+  background-color: #20372f;
+  color: #fffaf0;
+}
+
+.save-activity-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
 }
 
 @media (max-width: 650px) {
-  .itinerary-section {
-    padding: 32px 20px;
+  .itinerary-day {
+    padding: 21px 17px;
+  }
+
+  .activity-form {
+    grid-template-columns: 1fr;
+    padding: 18px;
+  }
+
+  .activity-form-buttons {
+    grid-column: 1;
+  }
+
+  .activity-item,
+  .activity-details {
+    align-items: flex-start;
+  }
+
+  .activity-item {
+    flex-direction: column;
+  }
+
+  .activity-details {
+    flex-direction: column;
+    gap: 5px;
   }
 }

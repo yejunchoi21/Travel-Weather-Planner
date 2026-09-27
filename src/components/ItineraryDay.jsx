@@ -1,224 +1,200 @@
-import { useEffect, useState } from "react";
-import { supabase } from "../lib/supabaseClient";
-import {
-  formatTripDate,
-  getTripDates,
-} from "../utils/dates";
-import ItineraryDay from "./ItineraryDay";
-import "./Itinerary.css";
+import { useState } from "react";
+import "./ItineraryDay.css";
 
-function Itinerary({
-  location,
-  startDate,
-  endDate,
-  tripId,
+function ItineraryDay({
+  date,
+  dayNumber,
+  formattedDate,
+  activities = [],
+  canAddActivities,
+  onAddActivity,
+  onDeleteActivity,
 }) {
-  const [activities, setActivities] =
-    useState({});
-
-  const [isLoading, setIsLoading] =
+  const [isAdding, setIsAdding] =
     useState(false);
 
-  const [error, setError] = useState("");
+  const [activityName, setActivityName] =
+    useState("");
 
-  useEffect(() => {
-    async function loadActivities() {
-      if (!tripId) {
-        setActivities({});
-        return;
-      }
+  const [activityTime, setActivityTime] =
+    useState("");
 
-      setIsLoading(true);
-      setError("");
+  const [isSaving, setIsSaving] =
+    useState(false);
 
-      const { data, error: loadError } =
-        await supabase
-          .from("activities")
-          .select("*")
-          .eq("trip_id", tripId)
-          .order("activity_date", {
-            ascending: true,
-          })
-          .order("activity_time", {
-            ascending: true,
-            nullsFirst: false,
-          });
+  async function handleSubmit(event) {
+    event.preventDefault();
 
-      if (loadError) {
-        setError(loadError.message);
-        setIsLoading(false);
-        return;
-      }
+    const trimmedName =
+      activityName.trim();
 
-      const groupedActivities = {};
-
-      data.forEach((activity) => {
-        const date = activity.activity_date;
-
-        if (!groupedActivities[date]) {
-          groupedActivities[date] = [];
-        }
-
-        groupedActivities[date].push({
-          id: activity.id,
-          name: activity.name,
-          time: activity.activity_time
-            ? activity.activity_time.slice(0, 5)
-            : "",
-        });
-      });
-
-      setActivities(groupedActivities);
-      setIsLoading(false);
-    }
-
-    loadActivities();
-  }, [tripId]);
-
-  if (!location || !startDate || !endDate) {
-    return null;
-  }
-
-  const tripDates = getTripDates(
-    startDate,
-    endDate
-  );
-
-  async function addActivity(
-    date,
-    newActivity
-  ) {
-    if (!tripId) {
-      setError(
-        "Save the trip before adding activities."
-      );
-
-      return false;
-    }
-
-    setError("");
-
-    const { data, error: saveError } =
-      await supabase
-        .from("activities")
-        .insert({
-          trip_id: tripId,
-          activity_date: date,
-          activity_time:
-            newActivity.time || null,
-          name: newActivity.name,
-        })
-        .select()
-        .single();
-
-    if (saveError) {
-      setError(saveError.message);
-      return false;
-    }
-
-    const savedActivity = {
-      id: data.id,
-      name: data.name,
-      time: data.activity_time
-        ? data.activity_time.slice(0, 5)
-        : "",
-    };
-
-    setActivities((currentActivities) => ({
-      ...currentActivities,
-
-      [date]: [
-        ...(currentActivities[date] || []),
-        savedActivity,
-      ],
-    }));
-
-    return true;
-  }
-
-  async function deleteActivity(
-    date,
-    activityId
-  ) {
-    setError("");
-
-    const { error: deleteError } =
-      await supabase
-        .from("activities")
-        .delete()
-        .eq("id", activityId);
-
-    if (deleteError) {
-      setError(deleteError.message);
+    if (!trimmedName) {
       return;
     }
 
-    setActivities((currentActivities) => ({
-      ...currentActivities,
+    setIsSaving(true);
 
-      [date]: (
-        currentActivities[date] || []
-      ).filter(
-        (activity) =>
-          activity.id !== activityId
-      ),
-    }));
+    try {
+      const wasSaved =
+        await onAddActivity(date, {
+          name: trimmedName,
+          time: activityTime,
+        });
+
+      if (wasSaved) {
+        setActivityName("");
+        setActivityTime("");
+        setIsAdding(false);
+      }
+    } finally {
+      setIsSaving(false);
+    }
+  }
+
+  function handleCancel() {
+    setActivityName("");
+    setActivityTime("");
+    setIsAdding(false);
   }
 
   return (
-    <section className="itinerary-section">
-      <div className="itinerary-heading">
-        <p className="itinerary-label">
-          Plan each day
+    <article className="itinerary-day">
+      <div className="itinerary-day-header">
+        <p className="itinerary-day-number">
+          Day {dayNumber}
         </p>
 
-        <h2>Your itinerary</h2>
-
-        <span>
-          {location.name}, {location.country}
-        </span>
+        <h3>{formattedDate}</h3>
       </div>
 
-      {!tripId && (
-        <p className="itinerary-save-notice">
-          Save your trip before adding activities.
-        </p>
-      )}
-
-      {error && (
-        <p className="itinerary-error">
-          {error}
-        </p>
-      )}
-
-      {isLoading ? (
-        <p className="itinerary-loading">
-          Loading activities...
+      {activities.length === 0 ? (
+        <p className="itinerary-empty">
+          No activities added yet.
         </p>
       ) : (
-        <div className="itinerary-days">
-          {tripDates.map((date, index) => (
-            <ItineraryDay
-              key={date}
-              date={date}
-              dayNumber={index + 1}
-              formattedDate={formatTripDate(
-                date
-              )}
-              activities={
-                activities[date] || []
-              }
-              canAddActivities={Boolean(tripId)}
-              onAddActivity={addActivity}
-              onDeleteActivity={
-                deleteActivity
+        <ul className="activity-list">
+          {activities.map((activity) => (
+            <li
+              className="activity-item"
+              key={activity.id}
+            >
+              <div className="activity-details">
+                <span className="activity-time">
+                  {activity.time ||
+                    "Any time"}
+                </span>
+
+                <span className="activity-name">
+                  {activity.name}
+                </span>
+              </div>
+
+              <button
+                className="delete-activity-button"
+                type="button"
+                onClick={() =>
+                  onDeleteActivity(
+                    date,
+                    activity.id
+                  )
+                }
+              >
+                Delete
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+
+      {isAdding ? (
+        <form
+          className="activity-form"
+          onSubmit={handleSubmit}
+        >
+          <div className="activity-form-field">
+            <label htmlFor={`time-${date}`}>
+              Time
+            </label>
+
+            <input
+              id={`time-${date}`}
+              type="time"
+              value={activityTime}
+              onChange={(event) =>
+                setActivityTime(
+                  event.target.value
+                )
               }
             />
-          ))}
-        </div>
+          </div>
+
+          <div className="activity-form-field activity-name-field">
+            <label
+              htmlFor={`activity-${date}`}
+            >
+              Activity
+            </label>
+
+            <input
+              id={`activity-${date}`}
+              type="text"
+              value={activityName}
+              placeholder="Example: Visit the museum"
+              maxLength="100"
+              onChange={(event) =>
+                setActivityName(
+                  event.target.value
+                )
+              }
+            />
+          </div>
+
+          <div className="activity-form-buttons">
+            <button
+              className="cancel-activity-button"
+              type="button"
+              onClick={handleCancel}
+            >
+              Cancel
+            </button>
+
+            <button
+              className="save-activity-button"
+              type="submit"
+              disabled={
+                isSaving ||
+                !activityName.trim()
+              }
+            >
+              {isSaving
+                ? "Saving..."
+                : "Add"}
+            </button>
+          </div>
+        </form>
+      ) : (
+        <button
+          className="add-activity-button"
+          type="button"
+          disabled={!canAddActivities}
+          onClick={() => {
+            if (canAddActivities) {
+              setIsAdding(true);
+            }
+          }}
+        >
+          + Add activity
+        </button>
       )}
-    </section>
+
+      {!canAddActivities && (
+        <p className="activity-save-reminder">
+          Save this trip before adding
+          activities.
+        </p>
+      )}
+    </article>
   );
 }
 
-export default Itinerary;
+export default ItineraryDay;
